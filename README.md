@@ -14,8 +14,8 @@ When you are done, run `python -m pipenv run uvicorn app:serve --reload` to run 
 
 ## API Documentation
 
-The API documentation is available at [http://127.0.0.1/docs](http://127.0.0.1/docs) and 
-[http://127.0.0.1/redoc](http://127.0.0.1/redoc). They both show the same information but 
+The API documentation is available at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) and 
+[http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc). They both show the same information but 
 in slightly different ways formats.
 
 ## Frameworks and Libraries
