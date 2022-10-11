@@ -8,7 +8,7 @@ To run the project, you need to have `python 3.9` and `pipenv` installed.
 
 If you don't have `pipenv`, you can install it by running `python -m pip install pipenv`.
 
-Then, run `python -m pip pipenv install` to install all the dependencies.
+Then, run `python -m pipenv install` to install all the dependencies.
 
 When you are done, run `python -m pipenv run uvicorn app:serve --reload` to run the project.
 
