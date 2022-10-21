@@ -1,6 +1,9 @@
 # Env Files
 .env
 
+# Docker Compose
+/postgres
+
 # MacOS
 .DS_Store
 
