@@ -5,6 +5,8 @@ verify_ssl = true
 
 [packages]
 fastapi = {extras = ["all"], version = "*"}
+asyncpg = "*"
+sqlalchemy = {extras = ["asyncio"], version = "*"}
 
 [requires]
 python_version = "3.9"
