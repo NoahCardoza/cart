@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 class Order(Base):
     __tablename__ = "Order"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("User.id"))
+    user_id = Column(Integer, ForeignKey("User.id"), nullable=False)
 
     updated_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)

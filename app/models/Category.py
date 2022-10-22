@@ -10,10 +10,10 @@ class Category(Base):
     id = Column(Integer, primary_key=True, index=True)
     parent_id = Column(Integer, ForeignKey("Category.id"))
 
-    slug = Column(String, unique=True, index=True)
-    image_url = Column(String)
-    name = Column(String)
-    description = Column(String)
+    slug = Column(String, unique=True, index=True, nullable=False)
+    image_url = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=False)
 
     children = relationship('Category', remote_side='Category.parent_id')
     products = relationship('Product', back_populates='category')
