@@ -9,6 +9,7 @@ asyncpg = "*"
 sqlalchemy = {extras = ["asyncio"], version = "*"}
 bcrypt = "*"
 python-slugify = "*"
+fastapi-pagination = "*"
 
 [requires]
 python_version = "3.9"
