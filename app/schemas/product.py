@@ -1,21 +1,12 @@
-from typing import Any, Optional
+from typing import Optional
 
-from pydantic import BaseModel, Field
-from pydantic.utils import GetterDict
-from sqlalchemy.orm.base import instance_dict
+from pydantic import Field
 
 from .category import CategoryOut
+from .orm import OrmBaseModel
 
 
-class ORMNoLazyLoaderGetter(GetterDict):
-    def get(self, key: str, default: Any) -> Any:
-        try:
-            return instance_dict(self._obj)[key]
-        except KeyError:
-            return default
-
-
-class ProductOut(BaseModel):
+class ProductOut(OrmBaseModel):
     id: int = Field(..., description="The product's ID.", example=420)
     category_id: int = Field(...,
                              description="The product's category ID.", example=42)
@@ -34,7 +25,3 @@ class ProductOut(BaseModel):
 
     category: Optional[CategoryOut] = Field(
         None, description="The an object describing the product's category.")
-
-    class Config:
-        orm_mode = True
-        getter_dict = ORMNoLazyLoaderGetter

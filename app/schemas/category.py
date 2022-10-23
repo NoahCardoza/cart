@@ -1,9 +1,11 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from .orm import OrmBaseModel
 
 
-class CategoryOut(BaseModel):
+class CategoryOut(OrmBaseModel):
     id: int = Field(..., description="The ID of the category.", example=420)
     parent_id: Optional[int] = Field(
         None, description="The ID of the parent category.", example=42)
@@ -16,6 +18,3 @@ class CategoryOut(BaseModel):
                       example="Eggs & Dairy")
     description: str = Field(..., description="The description of the category.",
                              example="Our eggs and dairy products are locally source and delivered fresh!")
-
-    class Config:
-        orm_mode = True
