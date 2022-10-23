@@ -9,9 +9,12 @@ from sqlalchemy.orm import sessionmaker
 
 from app import environ
 
-# heroku will use the plain posrgresql:// url
+# heroku will use the plain posrgres:// url
 # but we're using asyncpg so we need to use postgresql+asyncpg://
 ASYNC_DATABASE_URL = environ.DATABASE_URL.replace(
+    "postgres://",
+    "postgresql+asyncpg://"
+).replace(
     "postgresql://",
     "postgresql+asyncpg://"
 )
