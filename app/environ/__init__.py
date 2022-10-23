@@ -42,5 +42,8 @@ if ENVIRONMENT not in ['development', 'staging', 'production']:
     raise EnvironmentError(
         f'Invalid environment "{ENVIRONMENT}" found in the environment variable "ENVIRONMENT".')
 
+PRODUCTION = ENVIRONMENT == 'production'
+STAGING = ENVIRONMENT == 'staging'
 DEVELOPMENT = ENVIRONMENT == 'development'
+
 DATABASE_URL = getenv('DATABASE_URL')
