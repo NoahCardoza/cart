@@ -12,3 +12,6 @@ python-slugify = "*"
 
 [requires]
 python_version = "3.9"
+
+[dev-packages]
+typer = {extras = ["all"], version = "*"}

@@ -1,11 +1,9 @@
-from asyncio import current_task
 from os import environ
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Callable
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import (AsyncSession, async_scoped_session,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -26,10 +24,11 @@ engine = create_async_engine(
 
 # expire_on_commit=False will prevent attributes from being expired
 # after commit.
-async_session_factory = sessionmaker(
-    engine, expire_on_commit=False, class_=AsyncSession)
-AsyncScopedSession = async_scoped_session(
-    async_session_factory, scopefunc=current_task)
+async_session_factory: Callable[[], AsyncSession] = sessionmaker(
+    engine,
+    expire_on_commit=False,
+    class_=AsyncSession
+)
 
 Base = declarative_base()
 
