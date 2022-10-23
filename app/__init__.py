@@ -1,57 +1,16 @@
-import json
 import random
 
 from fastapi import FastAPI, Query
-from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
-from app import environ
-from app.exceptions import JSONException
+from app.bootstrap import cors, exceptions
 from app.routes.search import search_router
 
 app = FastAPI()
 app.include_router(search_router, prefix="/search", tags=["search"])
 
-allow_origins = []
-allow_origin_regex = None
-
-if environ.DEVELOPMENT:
-    # allow all origins in development
-    allow_origins = ["*"]
-
-if environ.STAGING:
-    # allow local frontend development to access staging backend
-    allow_origins.append("http://localhost:3000")
-    allow_origins.append("http://127.0.0.1:3000")
-
-    # allow the staging frontend to access staging backend
-    allow_origins.append("https://produce-goose-frontend-stg.herokuapp.com")
-
-    # allow review apps to access staging backend
-    allow_origin_regex = r"https:\/\/produce-goos-.+\.herokuapp\.com"
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allow_origins,
-    allow_origin_regex=allow_origin_regex,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.exception_handler(RequestValidationError)
-@app.exception_handler(ValidationError)
-async def validation_exception_handler(request, exc):
-    return JSONResponse(json.loads(exc.json()), status_code=422)
-
-
-@app.exception_handler(JSONException)
-async def validation_exception_handler(request, exc):
-    return JSONResponse(exc.body, status_code=exc.code)
+cors.setup_cors(app)
+exceptions.setup_exception_handlers(app)
 
 
 @app.get("/")
@@ -60,7 +19,7 @@ def get_root():
     return {"message": "Hello World"}
 
 
-@app.get("/example")
+@app.get("/example/")
 def get_with_query(arg: str = Query(default=None)):
     """An example showing how to use query parameters"""
     return {"arg": arg}
@@ -77,7 +36,7 @@ class UserOut(UserIn):
     id: int
 
 
-@app.post("/validate", response_model=UserOut)
+@app.post("/validate/", response_model=UserOut)
 def validate_data(user: UserIn):
     """An example showing how to validate data from the ui and return a response"""
     return {
