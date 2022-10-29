@@ -3,6 +3,7 @@ import asyncio
 import bcrypt
 from app.database import async_session_factory
 from app.models import Category, Product, User, create_all_tables
+from app.security import pwd_context
 from typer import Option, Typer
 
 from manage.utils import coro
@@ -36,7 +37,7 @@ async def populate_database():
                         'firstname': "Jeff",
                         'lastname': "Bezos",
                         'email': "jeff.bezos@sjsu.edu",
-                        'password': bcrypt.hashpw(b"superuser", bcrypt.gensalt()).decode(),
+                        'password': pwd_context.hash("superuser"),
                         'is_superuser': True,
                     }
                 ),
@@ -45,7 +46,7 @@ async def populate_database():
                         'firstname': "Amy",
                         'lastname': "Dyken",
                         'email': "amy.dyken@sjsu.edu",
-                        'password': bcrypt.hashpw(b"employee", bcrypt.gensalt()).decode(),
+                        'password': pwd_context.hash("employee"),
                         'is_employee': True,
                     }
                 ),
@@ -54,7 +55,7 @@ async def populate_database():
                         'firstname': "Morgan",
                         'lastname': "Freemen",
                         'email': "morgan.freemen@sjsu.edu",
-                        'password': bcrypt.hashpw(b"customer", bcrypt.gensalt()).decode(),
+                        'password': pwd_context.hash("customer"),
                     }
                 )
             ]
