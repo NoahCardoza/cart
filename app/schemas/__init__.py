@@ -1,1 +1,1 @@
-from . import category, product
+from . import authentication, category, product, user

@@ -35,6 +35,7 @@ def getenv(key: str, default: Any = NotSet) -> Any:
     if default is NotSet:
         raise EnvironmentError(
             f'The envrironment variable "{key}" was not found and no default was set.')
+    return default
 
 
 ENVIRONMENT = getenv('ENVIRONMENT')
@@ -47,3 +48,5 @@ STAGING = ENVIRONMENT == 'staging'
 DEVELOPMENT = ENVIRONMENT == 'development'
 
 DATABASE_URL = getenv('DATABASE_URL')
+JWT_SECRET = getenv('JWT_SECRET')
+JWT_EXPIRE_TIMEPUT_MINUTES = int(getenv('JWT_EXPIRE_TIMEPUT_MINUTES', 60))
