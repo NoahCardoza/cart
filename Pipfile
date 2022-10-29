@@ -14,7 +14,7 @@ python-jose = "*"
 bcrypt = "*"
 
 [requires]
-python_version = "3.9"
+python_version = "3.10"
 
 [dev-packages]
 typer = {extras = ["all"], version = "*"}
