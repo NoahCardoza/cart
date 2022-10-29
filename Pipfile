@@ -7,9 +7,11 @@ verify_ssl = true
 fastapi = {extras = ["all"], version = "*"}
 asyncpg = "*"
 sqlalchemy = {extras = ["asyncio"], version = "*"}
-bcrypt = "*"
 python-slugify = "*"
 fastapi-pagination = "*"
+passlib = "*"
+python-jose = "*"
+bcrypt = "*"
 
 [requires]
 python_version = "3.9"
