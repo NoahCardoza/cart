@@ -4,7 +4,7 @@ from app.database import Base, engine
 from .Address import Address
 from .Category import Category
 from .Delivery import Delivery
-from .Order import Order
+from .Order import Order, OrderStatus
 from .OrderItem import OrderItem
 from .Product import Product
 from .User import User

@@ -9,3 +9,5 @@ class OrderItem(Base):
     order_id = Column(Integer, ForeignKey("Order.id"), nullable=False)
     product_id = Column(Integer, ForeignKey("Product.id"), nullable=False)
     quantity = Column(Integer, default=1)
+
+    product = relationship("Product", lazy="joined")
