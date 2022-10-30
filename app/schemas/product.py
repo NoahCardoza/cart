@@ -1,9 +1,16 @@
-from typing import Optional
+from typing import Annotated, Any, Optional
 
-from pydantic import Field
+from pydantic import BaseModel, Field, conint
 
 from .category import CategoryOut
 from .orm import OrmBaseModel
+
+
+class ProductCartItemUpdate(BaseModel):
+    quantity: conint(strict=True, gt=0) = Field(description="The quantity of the product in the cart.", example=1)
+
+class ProductCartItemIn(ProductCartItemUpdate):
+    product_id: int = Field(..., description="The product id.", example=1)
 
 
 class ProductOut(OrmBaseModel):
