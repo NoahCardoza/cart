@@ -35,6 +35,19 @@ The API documentation is available at [http://127.0.0.1:8000/docs](http://127.0.
 [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc). They both show the same information but 
 in slightly different ways formats.
 
+## Comunicating with the frontend
+
+For simplicity and becasue we are using SSR, we are using JWT encoded cookies to track user sessions.
+The only caveat is that when run locally, the frontend and backend need to be running on the same domain.
+A simple solution is to spin up a reverse proxy like nginx and have it proxy requests to both the
+the frontend dev server and the backend dev server.
+
+To do this, just run `docker-compose up nginx` in the root directory. This will spin up a nginx server.
+If you want to run the local frontend on the staging server, you will need to edit line `12` in
+`/nginx/nginx.conf`, changing `http://host.docker.internal:8000/` to `https://produce-goose-backend-stg.herokuapp.com/`.
+
+**If you make these changes, remember not to commit them.**
+
 ## Frameworks and Libraries
 
 + [FastAPI](https://fastapi.tiangolo.com)
