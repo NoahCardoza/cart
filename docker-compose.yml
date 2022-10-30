@@ -12,3 +12,9 @@ services:
       - POSTGRES_USER=producegoose
       - POSTGRES_DB=website
       - POSTGRES_PASSWORD=drowssap
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8080:80"
