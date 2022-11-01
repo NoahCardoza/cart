@@ -10,6 +10,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.schemas import product
+
 search_router = APIRouter()
 
 
@@ -46,3 +48,4 @@ async def search(
 
 
 add_pagination(search_router)
+

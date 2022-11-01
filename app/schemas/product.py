@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field, conint
 
@@ -27,8 +27,15 @@ class ProductOut(OrmBaseModel):
     image_url: str = Field(..., description="The product's image URL.",
                            example="https://allthatsinteresting.com/wordpress/wp-content/uploads/2012/06/iconic-photos-1950-einstein.jpg")
     description: str = Field(..., description="The product's description.",
-                             example="Local eggs. A great source of protein.")
+                             example="Local eggs. A great source of protein!!!!!!")
     price: float = Field(..., description="The product's price.", example=2.99)
 
     category: Optional[CategoryOut] = Field(
         None, description="The an object describing the product's category.")
+
+class ProductUpdate(BaseModel):
+    quantity: int = Field(...,
+                          description="The amount of stock in our inventory.", example=100)
+    price: float = Field(..., description="The product's price.", example=2.99)
+
+
