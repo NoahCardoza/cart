@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Union
 
-from fastapi import Cookie, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -62,6 +62,47 @@ async def get_current_user(session: str = Cookie(...)) -> schemas.user.UserConte
             detail="Fatal error while validating credentials",
         )
 
+
+async def get_current_superuser(user: schemas.user.UserContext = Depends(get_current_user)) -> schemas.user.UserContext:
+    """Checks if the user is a superuser.
+
+    Args:
+        user (schemas.user.UserContext): Depends(get_current_user).
+
+    Raises:
+        HTTPException: If the user is not a superuser.
+
+    Returns:
+        schemas.user.UserContext: The user object.
+    """
+    if user.is_superuser:
+        return user
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="This route if for superusers only",
+    )
+    
+
+async def get_current_employee(user: schemas.user.UserContext = Depends(get_current_user)) -> schemas.user.UserContext:
+    """Checks if the user is an employee or a superuser.
+
+    Args:
+        user (schemas.user.UserContext): Depends(get_current_user).
+
+    Raises:
+        HTTPException: If the user is not an employee or superuser.
+
+    Returns:
+        schemas.user.UserContext: The user object.
+    """
+    if user.is_employee or user.is_superuser:
+        return user
+    
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="This route is for employees only",
+    )
 
 def authenticate_user(user: models.User, password: str):
     if user is None:

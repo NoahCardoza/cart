@@ -1,6 +1,6 @@
-from app import models
+from app import models, schemas
 from app.database import get_database
-from app.schemas import product
+from app.security import get_current_employee
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy import select
@@ -11,7 +11,8 @@ product_router = APIRouter()
 @product_router.patch("/{product_id}")
 async def update_product(
     product_id: int,
-    new_product_info: product.ProductUpdate,
+    new_product_info: schemas.product.ProductUpdate,
+    user: schemas.user.UserContext = Depends(get_current_employee), # throws 401 if not logged in as an employee
     db: AsyncSession = Depends(get_database)
 ):
     item_update = (await db.execute(select(models.Product).where(
