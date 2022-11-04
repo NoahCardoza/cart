@@ -84,6 +84,10 @@ If you want to run the local frontend on the staging server, you will need to ed
 
 **If you make these changes, remember not to commit them.**
 
+## Testing
+
+To run the tests, run `python -m pipenv run pytest`. This will execue all the test files and show the results.
+
 ## Frameworks and Libraries
 
 + [Stripe](https://stripe.com/docs)
