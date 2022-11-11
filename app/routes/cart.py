@@ -111,3 +111,13 @@ async def delete_cart_item(
     await db.delete(order_item)
     await db.commit()
     await db.refresh(cart)
+
+
+@cart_router.get("/", response_model=schemas.order.OrderCartOut)
+async def get_user_past_order(db: AsyncSession = Depends(get_database), user: schemas.user.UserContext = Depends(security.get_current_user)) -> models.Order:
+   
+    cart = (await db.execute(
+        select(models.Order).where(models.Order.user_id == user.id and models.Order.status != models.OrderStatus.CART)
+    )).scalars().first()
+
+    return cart
