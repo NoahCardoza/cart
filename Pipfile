@@ -17,6 +17,8 @@ email-validator = "*"
 stripe = "*"
 sqlakeyset = "*"
 requests = "*"
+pytest-asyncio = "*"
+httpx = "*"
 
 [requires]
 python_version = "3.10"
