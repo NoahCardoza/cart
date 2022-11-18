@@ -1,11 +1,11 @@
 import asyncio
 
 import bcrypt
+from typer import Option, Typer
+
 from app.database import async_session_factory
 from app.models import Category, Product, User, create_all_tables
 from app.security import pwd_context
-from typer import Option, Typer
-
 from manage.utils import coro
 
 db_app = Typer(
@@ -121,7 +121,8 @@ async def populate_database():
                     "image_url": "https://images.unsplash.com/photo-1569870499705-504209102861?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=830&q=80",
                     "category_id": categories["Fruits"].id,
                     "quantity": 20,
-                    "price": 1.99,
+                    "price": 0.99,
+                    "weight": 0.5,
                 },
                 {
                     "name": "Oranges",
@@ -130,6 +131,7 @@ async def populate_database():
                     "category_id": categories["Fruits"].id,
                     "quantity": 20,
                     "price": 1.99,
+                    "weight": 0.7,
                 },
                 {
                     "name": "Peaches",
@@ -138,6 +140,7 @@ async def populate_database():
                     "category_id": categories["Fruits"].id,
                     "quantity": 20,
                     "price": 1.99,
+                    "weight": 0.8,
                 },
                 {
                     "name": "Strawberries",
@@ -145,7 +148,8 @@ async def populate_database():
                     "image_url": "https://images.unsplash.com/photo-1543158181-e6f9f6712055?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
                     "category_id": categories["Fruits"].id,
                     "quantity": 20,
-                    "price": 1.99,
+                    "price": 3.99,
+                    "weight": 0.2,
                 },
                 {
                     "name": "Apricots",
@@ -153,7 +157,8 @@ async def populate_database():
                     "image_url": "https://images.unsplash.com/photo-1592681814168-6df0fa93161b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
                     "category_id": categories["Fruits"].id,
                     "quantity": 20,
-                    "price": 1.99,
+                    "price": 4.99,
+                    "weight": 0.3,
                 },
                 {
                     "name": "Bananas",
@@ -162,6 +167,7 @@ async def populate_database():
                     "category_id": categories["Fruits"].id,
                     "quantity": 20,
                     "price": 1.99,
+                    "weight": 0.4,
                 },
                 {
                     "name": "Black Berries",
@@ -169,7 +175,8 @@ async def populate_database():
                     "image_url": "https://images.unsplash.com/photo-1562845029-d1b530d4cfd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
                     "category_id": categories["Fruits"].id,
                     "quantity": 20,
-                    "price": 1.99,
+                    "price": 5.99,
+                    "weight": 0.6,
                 },
                 {
                     "name": "Raspberries",
@@ -177,7 +184,8 @@ async def populate_database():
                     "image_url": "https://images.unsplash.com/photo-1577069861033-55d04cec4ef5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=928&q=80",
                     "category_id": categories["Fruits"].id,
                     "quantity": 20,
-                    "price": 1.99,
+                    "price": 5.99,
+                    "weight": 0.6,
                 },
             ]}
         session.add_all(products.values())

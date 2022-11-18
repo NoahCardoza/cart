@@ -22,6 +22,8 @@ class ProductOut(OrmBaseModel):
                       example="eggs-dairy")
     quantity: int = Field(...,
                           description="The amount of stock in our inventory.", example=100)
+    weight: float = Field(...,
+                          description="The weight of the item.", example=0.3)
     name: str = Field(..., description="The product's name.",
                       example="Eggs & Dairy")
     image_url: str = Field(..., description="The product's image URL.",
