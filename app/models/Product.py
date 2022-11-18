@@ -17,6 +17,7 @@ class Product(Base):
     image_url = Column(String, nullable=False)
     description = Column(String, nullable=False)
     price = Column(Float, nullable=False)
+    weight = Column(Float, nullable=False)
 
 
 event.listen(Product.name, 'set', slugify_listener, retval=False)
