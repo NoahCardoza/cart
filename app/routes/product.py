@@ -35,14 +35,17 @@ async def update_product(
 
     return item_update
 
+
 @product_router.get("/{slug}", response_model=schemas.product.ProductOut, response_model_exclude_none=True)
-async def update_product(
+async def get_product_by_slug(
     slug: str,
     expansions: Optional[List[Any]] = Depends(FieldExpansionQueryParams({
         'category': selectinload(models.Product.category)
     })),
     db: AsyncSession = Depends(get_database)
 ):
+    """Get a product by it's slug."""
+    
     stmt = select(models.Product).where(models.Product.slug == slug)
 
     if expansions:
@@ -55,3 +58,7 @@ async def update_product(
 
     return product
 
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
