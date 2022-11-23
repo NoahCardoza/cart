@@ -1,10 +1,13 @@
-from typing import Optional
+from typing import ForwardRef, List, Optional
 
 from pydantic import BaseModel, Field, conint
 
-from .category import CategoryOut
 from .orm import OrmBaseModel
 
+# if TYPE_CHECKING:
+    # from .category import CategoryOut
+
+CategoryOut = ForwardRef('CategoryOut')
 
 class ProductCartItemUpdate(BaseModel):
     quantity: conint(strict=True, gt=0) = Field(description="The quantity of the product in the cart.", example=1)
@@ -41,3 +44,24 @@ class ProductUpdate(BaseModel):
     price: float = Field(..., description="The product's price.", example=2.99)
 
 
+
+# stooopid circular deps
+
+class CategoryIn(OrmBaseModel):
+    parent_id: Optional[int] = Field(
+        None, description="The ID of the parent category.", example=42)
+    image_url: str = Field(..., description="The URL of the category image.",
+                           example="https://allthatsinteresting.com/wordpress/wp-content/uploads/2012/06/iconic-photos-1950-einstein.jpg")
+    name: str = Field(..., description="The name of the category.",
+                      example="Eggs & Dairy")
+    description: str = Field(..., description="The description of the category.",
+                             example="Our eggs and dairy products are locally source and delivered rotten!")
+
+class CategoryOut(CategoryIn):
+    id: int = Field(..., description="The ID of the category.", example=420)
+    slug: str = Field(..., description="The slug of the category.",
+                      example="eggs-dairy")
+    products: Optional[List['ProductOut']] = Field(None, description="The products of this category if expanded.")
+
+
+ProductOut.update_forward_refs()

@@ -1,8 +1,5 @@
 from typing import Any, List, Optional
 
-from app import models, schemas
-from app.database import get_database
-from app.dependencies.field_expansion import FieldExpansionQueryParams
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import Page, add_pagination
 from fastapi_pagination.ext.async_sqlalchemy import paginate
@@ -10,7 +7,9 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.schemas import product
+from app import models, schemas
+from app.database import get_database
+from app.dependencies.field_expansion import FieldExpansionQueryParams
 
 search_router = APIRouter()
 
@@ -43,7 +42,7 @@ async def search(
     if expansions:
         stmt = stmt.options(*expansions)
     results = await paginate(db, stmt)
-    print('page', results.items)
+
     return results
 
 

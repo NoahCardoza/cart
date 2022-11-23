@@ -1,6 +1,7 @@
-from app.database import Base
 from sqlalchemy import Column, ForeignKey, Integer, String, event
 from sqlalchemy.orm import relationship
+
+from app.database import Base
 
 from .helpers import slugify_listener
 
