@@ -29,7 +29,7 @@ async def get_category_by_slug(
     })),
     db: AsyncSession = Depends(get_database)
 ):
-    """Get a category information by slug."""
+    """Get a category by it's slug."""
 
     stmt = select(models.Category).where(models.Category.slug == slug)
 
