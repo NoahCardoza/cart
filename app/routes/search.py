@@ -10,7 +10,6 @@ from sqlalchemy.orm import selectinload
 from app import models, schemas
 from app.database import get_database
 from app.dependencies.field_expansion import FieldExpansionQueryParams
-from app.schemas import product
 
 search_router = APIRouter()
 

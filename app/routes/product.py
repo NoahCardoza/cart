@@ -1,10 +1,15 @@
-from app import models, schemas
-from app.database import get_database
-from app.security import get_current_employee
+from typing import Any, List, Optional
+
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app import models, schemas
+from app.database import get_database
+from app.dependencies.field_expansion import FieldExpansionQueryParams
+from app.security import get_current_employee
 
 product_router = APIRouter()
 
@@ -29,4 +34,24 @@ async def update_product(
     await db.refresh(item_update)
 
     return item_update
+
+@product_router.get("/{slug}", response_model=schemas.product.ProductOut, response_model_exclude_none=True)
+async def update_product(
+    slug: str,
+    expansions: Optional[List[Any]] = Depends(FieldExpansionQueryParams({
+        'category': selectinload(models.Product.category)
+    })),
+    db: AsyncSession = Depends(get_database)
+):
+    stmt = select(models.Product).where(models.Product.slug == slug)
+
+    if expansions:
+        stmt = stmt.options(*expansions)
+
+    product = (await db.execute(stmt)).scalars().first()
+
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return product
 

@@ -21,7 +21,7 @@ async def get_all_categories(
     """List all categories."""
     return await paginate(db, select(models.Category))
 
-@category_router.get("/{slug}", response_model=schemas.category.CategoryOut)
+@category_router.get("/{slug}", response_model=schemas.category.CategoryOut, response_model_exclude_none=True)
 async def get_category_by_slug(
     slug: str,
     expansions: Optional[List[Any]] = Depends(FieldExpansionQueryParams({
