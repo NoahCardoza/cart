@@ -1,11 +1,17 @@
-from app import models, schemas, security
-from app.database import get_database
-from fastapi import APIRouter, Depends
+import functools
+
+import stripe
+from fastapi import APIRouter, Depends, Request
 from fastapi.exceptions import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app import models, schemas, security
+from app.database import get_database
+from app.environ import BASE_URL_UI
+
 cart_router = APIRouter()
+
 
 async def get_user_current_order(db: AsyncSession = Depends(get_database), user: schemas.user.UserContext = Depends(security.get_current_user)) -> models.Order:
     """Get the current order for the user or create one if it doesn't exist.
@@ -18,7 +24,7 @@ async def get_user_current_order(db: AsyncSession = Depends(get_database), user:
         models.Order: The current order for the user.
     """
     cart = (await db.execute(
-        select(models.Order).where(models.Order.user_id == user.id and models.Order.status == models.OrderStatus.CART)
+        select(models.Order).where((models.Order.user_id == user.id) & (models.Order.status == models.OrderStatus.CART))
     )).scalars().first()
 
     if cart is None:
@@ -49,7 +55,7 @@ async def add_to_cart(
         raise HTTPException(status_code=400, detail="Not enough stock")
 
     order_item = (await db.execute(select(models.OrderItem).where(
-        models.OrderItem.product_id == item.product_id and models.OrderItem.order_id == cart.id
+        (models.OrderItem.product_id == item.product_id) & (models.OrderItem.order_id == cart.id)
     ))).scalars().first()
     if order_item is None:
         order_item = models.OrderItem(product_id=item.product_id, order_id=cart.id, quantity=item.quantity)
@@ -70,11 +76,11 @@ async def update_cart_item(
         db: AsyncSession = Depends(get_database)
     ):
     """Add an item to the current users cart."""
-
+    
     order_item = (await db.execute(select(models.OrderItem).where(
-        models.OrderItem.id == item_id and models.OrderItem.order_id == cart.id
+        (models.OrderItem.id == item_id) & (models.OrderItem.order_id == cart.id)
     ))).scalars().first()
-
+    
     if order_item is None:
         raise HTTPException(status_code=404, detail="Cart item was not found")
 
@@ -100,7 +106,7 @@ async def delete_cart_item(
     """Delete an item from the current users cart."""
 
     order_item = (await db.execute(select(models.OrderItem).where(
-        models.OrderItem.id == item_id and models.OrderItem.order_id == cart.id
+        (models.OrderItem.id == item_id) & (models.OrderItem.order_id == cart.id)
     ))).scalars().first()
 
     if order_item is None:
@@ -117,7 +123,70 @@ async def delete_cart_item(
 async def get_user_past_order(db: AsyncSession = Depends(get_database), user: schemas.user.UserContext = Depends(security.get_current_user)) -> models.Order:
    
     cart = (await db.execute(
-        select(models.Order).where(models.Order.user_id == user.id and models.Order.status != models.OrderStatus.CART)
+        select(models.Order).where(
+            (models.Order.user_id == user.id) & (models.Order.status != models.OrderStatus.CART)
+        )
     )).scalars().first()
 
     return cart
+
+@cart_router.post("/checkout/")
+async def checkout_cart(
+        user: schemas.user.UserContext = Depends(security.get_current_user),
+        cart: models.Order = Depends(get_user_current_order),
+        db: AsyncSession = Depends(get_database)
+    ):
+    """Checkout the current users cart."""
+
+    total_weight = functools.reduce(float.__add__, [item.product.weight * item.quantity for item in cart.items])
+
+    shipping_options = (
+        {   
+            # Standard shipping
+            'shipping_rate': 'shr_1M7SlzIHPbp7YuoOvr1EMz7A'
+        },
+        {   
+            # Express shipping
+            'shipping_rate': 'shr_1M7SmTIHPbp7YuoOgmsgRqDC'
+        },
+    )
+
+    # provide free shipping option for orders over 20 pounds
+    if total_weight >= 20:
+        shipping_options = (
+            {
+                # Free shipping
+                'shipping_rate': 'shr_1M7QkgIHPbp7YuoO50Fbuedy'
+            },
+            *shipping_options
+        )
+
+    checkout_session = stripe.checkout.Session.create(
+        success_url=f"{BASE_URL_UI}/orders/{cart.id}",
+        cancel_url=f"{BASE_URL_UI}/shop?expand=cart",
+        customer=user.stripe_id,
+        metadata={
+            "order_id": cart.id
+        },
+        line_items=[
+            {
+                "price_data": {
+                    "currency": "usd",
+                    "unit_amount": int(item.product.price * 100),
+                    "product_data": {
+                        "name": item.product.name,
+                        "description": item.product.description,
+                        "images": [item.product.image_url],
+                    },
+                },
+                "quantity": item.quantity,
+            } for item in cart.items
+        ],
+        shipping_address_collection={
+            "allowed_countries": ["US"],
+        },
+        shipping_options=shipping_options,
+        mode="payment",
+    )
+
+    return { "id": checkout_session.id, "url": checkout_session.url }
