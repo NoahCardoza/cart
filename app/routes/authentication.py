@@ -1,16 +1,24 @@
-from fastapi import (APIRouter, Depends, HTTPException, Request, Response,
-                     status)
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
-# from sqlalchemy import 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import models, schemas, security
 from app.database import get_database
-
 from app.security import pwd_context
 
 auth_router = APIRouter()
 
+
+def create_access_token(user: models.User) -> str:
+    return security.create_access_token(data={
+        "id": user.id,
+        "stripe_id": user.stripe_id,
+        "email": user.email,
+        "firstname": user.firstname,
+        "lastname": user.lastname,
+        "is_superuser": user.is_superuser,
+        "is_employee": user.is_employee
+    })
 
 @auth_router.post("/token/", response_model=schemas.authentication.Token)
 async def get_access_token(
@@ -27,14 +35,7 @@ async def get_access_token(
             detail="Incorrect username or password",
         )
 
-    access_token = security.create_access_token(data={
-        "id": user.id,
-        "email": user.email,
-        "firstname": user.firstname,
-        "lastname": user.lastname,
-        "is_superuser": user.is_superuser,
-        "is_employee": user.is_employee
-    })
+    access_token = create_access_token(user)
 
     response.set_cookie(key="session", value=access_token)
 
@@ -47,27 +48,21 @@ async def get_access_token(
 @auth_router.post("/register", response_model=schemas.authentication.Token)
 async def register_new_user(
     response: Response,
-    newUserDetails: schemas.user.NewUserIn,
+    new_user_details: schemas.user.NewUserIn,
     db: AsyncSession = Depends(get_database)
 ):
-    newUser = models.User( 
-        email=newUserDetails.username,
-        firstname=newUserDetails.firstname,
-        lastname=newUserDetails.lastname,
-        password=pwd_context.hash(newUserDetails.password)
+    new_user = models.User( 
+        email=new_user_details.username,
+        firstname=new_user_details.firstname,
+        lastname=new_user_details.lastname,
+        password=pwd_context.hash(new_user_details.password)
     )
-    db.add(newUser)
-    await db.commit()
-    db.refresh(newUser)
 
-    access_token = security.create_access_token(data={
-        "id": newUser.id,
-        "email": newUser.email,
-        "firstname": newUser.firstname,
-        "lastname": newUser.lastname,
-        "is_superuser": newUser.is_superuser,
-        "is_employee": newUser.is_employee
-    })
+    db.add(new_user)
+    await db.commit()
+    db.refresh(new_user)
+
+    access_token = create_access_token(new_user)
 
     response.set_cookie(key="session", value=access_token)
 

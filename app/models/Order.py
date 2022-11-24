@@ -1,9 +1,10 @@
 import enum
 from datetime import datetime
 
-from app.database import Base
-from sqlalchemy import Column, DateTime, ForeignKey, Integer
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
+from app.database import Base
 
 from .helpers.enums import IntEnum
 
@@ -21,6 +22,7 @@ class Order(Base):
     user_id = Column(Integer, ForeignKey("User.id"), nullable=False)
     status = Column(IntEnum(OrderStatus), default=OrderStatus.CART)
 
+    stripe_id = Column(String, default="")
     updated_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
 
