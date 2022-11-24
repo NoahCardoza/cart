@@ -45,7 +45,6 @@ async def get_product_by_slug(
     db: AsyncSession = Depends(get_database)
 ):
     """Get a product by it's slug."""
-    
     stmt = select(models.Product).where(models.Product.slug == slug)
 
     if expansions:
@@ -58,7 +57,4 @@ async def get_product_by_slug(
 
     return product
 
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+
