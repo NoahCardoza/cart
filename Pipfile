@@ -13,6 +13,7 @@ passlib = "*"
 python-jose = "*"
 bcrypt = "*"
 greenlet = "*"
+email-validator = "*"
 
 [requires]
 python_version = "3.10"
