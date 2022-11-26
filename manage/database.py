@@ -1,12 +1,16 @@
 import asyncio
 
 import bcrypt
+import stripe
 from typer import Option, Typer
 
 from app.database import async_session_factory
+from app.environ import STRIPE_PRIVATE_KEY
 from app.models import Category, Product, User, create_all_tables
 from app.security import pwd_context
 from manage.utils import coro
+
+stripe.api_key = STRIPE_PRIVATE_KEY
 
 db_app = Typer(
     help="A collection of commands to help with database management.")
@@ -26,11 +30,32 @@ async def build(
         await populate_database()
 
 
+def upsert_stripe_contact(email: str, name: str):
+    """Upsert a contact in Stripe.
+
+    Args:
+        email (str): The email of the contact.
+        name (str): The name of the contact.
+    """
+    try:
+        customers = stripe.Customer.search(
+            query=f"email:'{email}'"
+        )['data']
+        print(customers)
+        if len(customers) == 0:
+            return stripe.Customer.create(
+                name=name,
+                email=email
+            )
+        return customers[0]
+    except stripe.error.InvalidRequestError:
+        pass
+
 async def populate_database():
     async with async_session_factory() as session:
         # create default users
         users = {
-            role: User(**details)
+            role: User(**details, stripe_id=upsert_stripe_contact(details['email'], f"{details['firstname']} {details['lastname']}")['id'])
             for role, details in [
                 (
                     'admin', {
@@ -60,7 +85,8 @@ async def populate_database():
                 )
             ]
         }
-        session.add_all(users.values())
+
+        session.add_all(users.values() )
 
         # create default categories
         categories = {

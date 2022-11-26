@@ -56,5 +56,3 @@ async def get_product_by_slug(
         raise HTTPException(status_code=404, detail="Product not found")
 
     return product
-
-
