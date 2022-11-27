@@ -1,0 +1,59 @@
+from fastapi import FastAPI
+from typing import Optional
+from uuid import UUID, uuid4
+from pydantic import BaseModel
+from tkinter import *
+
+window = Tk()
+
+Increase_Button = Button(window, text = "+", command = ChangeInventory)
+Increase_Button.pack()
+
+def ChangeInventory():
+    if(Increase_Button == "Apples")
+    {
+        int NumberOfApples;
+        NumberOfApples ++;
+    }
+    
+    if(Increase_Button == "Oranges")
+    {
+        int NumberOfOranges;
+        NumberOfOranges ++;
+    }
+
+    if(Increase_Button == "Apricots")
+    {
+        int NumberOfApricots;
+        NumberOfApricots ++;
+    }
+
+    if(Increase_Button == "Bananas")
+    {
+        int NumberOfBananas;
+        NumberOfBananas ++;
+    }
+
+    if(Increase_Button == "Peaches")
+    {
+        int NumberOfPeaches;
+        NumberOfPeaches ++;
+    }
+
+    if(Increase_Button == "BlackBerries")
+    {
+        int NumberOfBlackBerries;
+        NumberOfBlackBerries ++;
+    }
+
+    if(Increase_Button == "Strawberries")
+    {
+        int NumberOfStrawberries;
+        NumberOfStrawberries ++;
+    }
+
+    if(Increase_Button == "Raspberries")
+    {
+        int NumberOfRaspberries;
+        NumberOfRaspberries ++;
+    }
