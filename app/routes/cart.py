@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import models, schemas, security
 from app.database import get_database
 from app.environ import BASE_URL_UI
-from app.stripe_config import shipping_options
+from app.stripe_config import shipping_rates
 
 cart_router = APIRouter()
 
@@ -136,14 +136,14 @@ async def checkout_cart(
     total_weight = functools.reduce(float.__add__, [item.product.weight * item.quantity for item in cart.items])
 
     shipping_options = (
-        { 'shipping_rate': shipping_options['standard'] },
-        { 'shipping_rate': shipping_options['express'] },
+        { 'shipping_rate': shipping_rates['standard'] },
+        { 'shipping_rate': shipping_rates['express'] },
     )
 
     # provide free shipping option for orders over 20 pounds
     if total_weight >= 20:
         shipping_options = (
-            { 'shipping_rate': shipping_options['complimentary'] },
+            { 'shipping_rate': shipping_rates['complimentary'] },
             *shipping_options
         )
 
