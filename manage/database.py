@@ -1,16 +1,10 @@
-import asyncio
-
-import bcrypt
 import stripe
 from typer import Option, Typer
 
 from app.database import async_session_factory
-from app.environ import STRIPE_PRIVATE_KEY
 from app.models import Category, Product, User, create_all_tables
 from app.security import pwd_context
 from manage.utils import coro
-
-stripe.api_key = STRIPE_PRIVATE_KEY
 
 db_app = Typer(
     help="A collection of commands to help with database management.")
