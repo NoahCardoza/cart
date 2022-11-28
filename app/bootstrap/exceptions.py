@@ -1,9 +1,10 @@
 import json
 
-from app.exceptions import JSONException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
+
+from app.exceptions import JSONException
 
 
 async def validation_exception_handler(request, exc):
@@ -11,7 +12,7 @@ async def validation_exception_handler(request, exc):
 
 
 async def json_exception_handler(request, exc):
-    return JSONResponse(exc.body, status_code=exc.code)
+    return JSONResponse([exc.body], status_code=exc.code)
 
 
 def setup_exception_handlers(app):
