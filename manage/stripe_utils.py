@@ -1,6 +1,5 @@
-
 import stripe
-from typer import Option, Typer
+from typer import Typer
 
 from app.stripe_config import StripeShippingRateError, load_shipping_options
 
