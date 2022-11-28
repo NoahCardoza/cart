@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import requests
 import stripe
@@ -65,3 +66,4 @@ async def stripe_webhook(
             order.longitude = res['data'][0]['longitude']
 
         order.address = short_address
+        order.updated_at = datetime.utcnow()

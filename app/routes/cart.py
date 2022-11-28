@@ -1,4 +1,5 @@
 import functools
+from datetime import datetime
 
 import stripe
 from fastapi import APIRouter, Depends, Request
@@ -64,6 +65,7 @@ async def add_to_cart(
     else:
         order_item.quantity += item.quantity
     
+    cart.updated_at = datetime.utcnow()        
     await db.commit()
     await db.refresh(cart)
 
@@ -93,6 +95,7 @@ async def update_cart_item(
     if (order_item.product.quantity < 0):
         raise HTTPException(status_code=400, detail="Not enough stock")
     
+    cart.updated_at = datetime.utcnow()
     await db.commit()
     await db.refresh(order_item)
 
@@ -115,6 +118,7 @@ async def delete_cart_item(
         raise HTTPException(status_code=404, detail="Cart item was not found")
 
     order_item.product.quantity += order_item.quantity
+    cart.updated_at = datetime.utcnow()
     
     await db.delete(order_item)
     await db.commit()
