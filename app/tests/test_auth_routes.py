@@ -7,7 +7,7 @@ AUTH_TOKEN_ENDPOINT = "/auth/token/"
 AUTH_REGISTER_ENDPOINT = "/auth/register"
 
 
-def decode_auth_token(auth_token):
+def decode_auth_token(auth_token: str) -> dict:
     return json.loads(base64.b64decode(auth_token.split(".")[1] + '==').decode('utf-8'))
 
 
@@ -20,7 +20,7 @@ async def test_username_dne(client: AsyncClient):
     assert response.status_code == 401
 
 
-async def test_valid_username_with_invalid_password(client):
+async def test_valid_username_with_invalid_password(client: AsyncClient):
     response = await client.post(AUTH_TOKEN_ENDPOINT, data={
         "username": "jeff.bezos@sjsu.edu",
         "password": "usersuper"
@@ -29,7 +29,7 @@ async def test_valid_username_with_invalid_password(client):
     assert response.status_code == 401
 
 
-async def test_valid_superuser_login(client):
+async def test_valid_superuser_login(client: AsyncClient):
     email = 'jeff.bezos@sjsu.edu'
 
     response = await client.post(AUTH_TOKEN_ENDPOINT, data={
@@ -46,7 +46,7 @@ async def test_valid_superuser_login(client):
     assert user['is_superuser'] == True
 
 
-async def test_valid_employee_login(client):
+async def test_valid_employee_login(client: AsyncClient):
     email = "amy.dyken@sjsu.edu"
 
     response = await client.post(AUTH_TOKEN_ENDPOINT, data={
@@ -63,7 +63,7 @@ async def test_valid_employee_login(client):
     assert user['is_employee'] == True
 
 
-async def test_valid_customer_login(client):
+async def test_valid_customer_login(client: AsyncClient):
     email = "morgan.freemen@sjsu.edu"
 
     response = await client.post(AUTH_TOKEN_ENDPOINT, data={
@@ -81,7 +81,7 @@ async def test_valid_customer_login(client):
     assert not user['is_employee']
 
 
-async def test_register_new_user_short_password(client):
+async def test_register_new_user_short_password(client: AsyncClient):
     email = "john.malkovich@sjsu.edu"
     password = "TAsqf"
 
