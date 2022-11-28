@@ -55,15 +55,22 @@ async def stripe_webhook(
         short_address = address['line1'] + (" " + address['line2'] if address['line2'] else '') + ', ' + address['city']
         long_address = short_address + ', ' + address['state'] + ', ' + address['postal_code'] + ', ' + address['country']
 
-        res = requests.get('http://api.positionstack.com/v1/forward', params={
-                'access_key': POSITIONSTACK_API_KEY,
-                'query': long_address,
-                'limit': 1,
-        }).json()
+        try:
+            res = requests.get('http://api.positionstack.com/v1/forward', params={
+                    'access_key': POSITIONSTACK_API_KEY,
+                    'query': long_address,
+                    'limit': 1,
+            })
+            
+            # TODO: find better API throws too many 502 errors
+            if res.status_code == 200:
+                res = res.json()
 
-        if len(res['data']) > 0:
-            order.latitude = res['data'][0]['latitude']
-            order.longitude = res['data'][0]['longitude']
+                if len(res['data']) > 0:
+                    order.latitude = res['data'][0]['latitude']
+                    order.longitude = res['data'][0]['longitude']
+        except json.JSONDecodeError:
+            pass
 
         order.address = short_address
         order.updated_at = datetime.utcnow()
