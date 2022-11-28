@@ -12,6 +12,12 @@ Then, run `python -m pipenv install` to install all the dependencies.
 
 When you are done, run `python -m pipenv run uvicorn app:app --reload` to run the project.
 
+### Impotant Notes
+
+Most of these commands assume you are at the root of the project. They also assume you are
+using inside the virtual environment created by `pipenv`. To activate the virtual environment,
+run `pipenv shell`.
+
 ### Common Issues
 
 #### Error: pip not found
@@ -86,7 +92,9 @@ If you want to run the local frontend on the staging server, you will need to ed
 
 ## Testing
 
-To run the tests, run `python -m pipenv run pytest`. This will execue all the test files and show the results.
+To run the tests, run `pytest --cov app --cov-report html app/tests`. This will execue all the test files and show the results. You can open up the `index.html` file in the `htmlcov` directory to see the coverage report. 
+
+* (11/28/22) As of commit `794d795`, coverage is at 94%.
 
 ## Frameworks and Libraries
 
