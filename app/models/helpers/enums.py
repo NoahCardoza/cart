@@ -2,7 +2,9 @@ import sqlalchemy as sa
 
 
 class IntEnum(sa.types.TypeDecorator):
+    cache_ok = True
     impl = sa.Integer
+    
     def __init__(self, enumtype, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._enumtype = enumtype

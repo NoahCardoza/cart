@@ -39,7 +39,16 @@ async def test_get_category_by_slug(client: AsyncClient):
     assert 'id' in data
     assert 'slug' in data
 
-    
+async def test_get_category_by_slug_dne(client: AsyncClient):
+    response = await client.get(GET_ALL_CATEGORY_ENDPOINT)
+
+    assert response.status_code == 200
+
+    response = await client.get(GET_CATEGORY_BY_SLUG_ENDPOINT.format(slug='does-not-exist'))
+
+    assert response.status_code == 404
+
+
 async def test_create_category_underprivileged(client: AsyncClient):
     response = await client.post(AUTH_TOKEN_ENDPOINT, data={
         'username': 'morgan.freemen@sjsu.edu',

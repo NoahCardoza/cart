@@ -64,7 +64,17 @@ async def test_update_product_underprivileged(client: AsyncClient):
     )
 
     assert response.status_code == 401
-    
+
+async def test_get_product_by_slug_dne(client: AsyncClient):
+    # get all products from the first category
+    response = await client.get(
+        GET_PRODUCT_BY_SLUG_ENDPOINT.format(
+            slug='does-not-exist'
+        )
+    )
+
+    assert response.status_code == 404
+
 
 async def test_update_product_privileged(client: AsyncClient):
     # get all categories

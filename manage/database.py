@@ -2,7 +2,8 @@ import stripe
 from typer import Option, Typer
 
 from app.database import async_session_factory
-from app.models import Category, Product, User, create_all_tables
+from app.models import (Category, Order, OrderItem, OrderStatus, Product, User,
+                        create_all_tables)
 from app.security import pwd_context
 from manage.utils import coro
 
@@ -80,7 +81,10 @@ async def populate_database(session_factory):
             ]
         }
 
-        session.add_all(users.values() )
+        session.add_all(users.values())
+
+        await session.commit()
+        # await session.refresh_all(users.values())
 
         # create default categories
         categories = {
@@ -131,6 +135,7 @@ async def populate_database(session_factory):
 
         # commit changes to the database so we can use the ids
         await session.commit()
+        # await session.refresh_all(categories.values())
 
         # create default products
         products = {
@@ -717,6 +722,45 @@ async def populate_database(session_factory):
         session.add_all(products.values())
         
         await session.commit()
+        # await session.refresh_all(products.values())
+
+        past_orders = [
+            Order(
+                user_id=users["customer"].id,
+                status=OrderStatus.CART,
+                items=[
+                    OrderItem(
+                        product_id=products["Apples"].id,
+                        quantity=1,
+                    )
+                ],
+                amount_total = round(5.99 + (products["Apples"].price * 1.098), 2),
+                amount_subtotal = products["Apples"].price,
+                amount_shipping = 5.99,
+                amount_tax = round(products["Apples"].price * 0.098, 2),
+                address="123 Main St, San Jose",
+            ),
+            Order(
+                user_id=users["employee"].id,
+                status=OrderStatus.CART,
+                items=[
+                    OrderItem(
+                        product_id=products["Apples"].id,
+                        quantity=1,
+                    )
+                ],
+                amount_total = round(5.99 + (products["Apples"].price * 1.098), 2),
+                amount_subtotal = products["Apples"].price,
+                amount_shipping = 5.99,
+                amount_tax = round(products["Apples"].price * 0.098, 2),
+                address="321 Main St, San Jose",
+            )
+        ]
+
+        session.add_all(past_orders)
+        await session.commit()
+        
+        
 
 
 @db_app.command()
