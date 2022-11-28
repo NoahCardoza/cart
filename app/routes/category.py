@@ -10,6 +10,7 @@ from sqlalchemy.orm import selectinload
 from app import models, schemas
 from app.database import get_database
 from app.dependencies.field_expansion import FieldExpansionQueryParams
+from app.security import get_current_superuser
 
 category_router = APIRouter()
 
@@ -49,13 +50,22 @@ async def get_category_by_slug(
 @category_router.post("/", response_model=schemas.category.CategoryOut)
 async def create_category(
     data: schemas.category.CategoryIn,
+    user: models.User = Depends(get_current_superuser), # gaurd to make sure only superusers can create categories
     db: AsyncSession = Depends(get_database)
 ):
     """Create a new category."""
+    
     category = models.Category(**data.dict())
+    existing_category = (await db.execute(select(models.Category).where(models.Category.slug == category.slug))).scalars().first()
+    
+    if existing_category:
+        raise HTTPException(status_code=409, detail="Category will not have a unique slug.")
+    
     db.add(category)
+
     await db.commit()
-    db.refresh(category)
+    await db.refresh(category)
+    
     return category
 
 

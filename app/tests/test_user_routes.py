@@ -1,6 +1,7 @@
 from httpx import AsyncClient
 
-AUTH_TOKEN_ENDPOINT = "/auth/token/"
+from .test_auth_routes import AUTH_TOKEN_ENDPOINT
+
 USER_ME_ENDPOINT = "/user/me/"
 
 async def test_without_session(client: AsyncClient):
