@@ -1,7 +1,7 @@
 import stripe
 from typer import Typer
 
-from app.stripe_config import StripeShippingRateError, load_shipping_options
+from app.stripe_config import StripeShippingRateError, load_shipping_rates
 
 stripe_app = Typer(
     help="A collection of commands to help with Stripe.")
@@ -80,7 +80,7 @@ def setup():
     """Create all necessary Stripe objects."""
 
     try:
-        load_shipping_options()
+        load_shipping_rates()
         print('Shipping options already loaded.')
     except StripeShippingRateError:
         for option in delivery_options:

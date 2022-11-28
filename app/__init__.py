@@ -11,7 +11,7 @@ from app.routes.product import product_router
 from app.routes.search import search_router
 from app.routes.user import user_router
 from app.routes.webhook import webhook_router
-from app.stripe_config import load_shipping_options
+from app.stripe_config import load_shipping_rates
 
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -29,4 +29,4 @@ app.include_router(product_router, prefix="/product", tags=["product"] )
 cors.setup_cors(app)
 exceptions.setup_exception_handlers(app)
 
-app.on_event("startup")(load_shipping_options)
+app.on_event("startup")(load_shipping_rates)

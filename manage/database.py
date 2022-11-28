@@ -2,7 +2,8 @@ import stripe
 from typer import Option, Typer
 
 from app.database import async_session_factory
-from app.models import Category, Product, User, create_all_tables
+from app.models import (Category, Order, OrderItem, OrderStatus, Product, User,
+                        create_all_tables)
 from app.security import pwd_context
 from manage.utils import coro
 
@@ -21,7 +22,7 @@ async def build(
     """Build the database tables."""
     await create_all_tables(drop_all=drop_all)
     if populate:
-        await populate_database()
+        await populate_database(async_session_factory)
 
 
 def upsert_stripe_contact(email: str, name: str):
@@ -45,8 +46,8 @@ def upsert_stripe_contact(email: str, name: str):
     except stripe.error.InvalidRequestError:
         pass
 
-async def populate_database():
-    async with async_session_factory() as session:
+async def populate_database(session_factory):
+    async with session_factory() as session:
         # create default users
         users = {
             role: User(**details, stripe_id=upsert_stripe_contact(details['email'], f"{details['firstname']} {details['lastname']}")['id'])
@@ -80,7 +81,10 @@ async def populate_database():
             ]
         }
 
-        session.add_all(users.values() )
+        session.add_all(users.values())
+
+        await session.commit()
+        # await session.refresh_all(users.values())
 
         # create default categories
         categories = {
@@ -131,128 +135,7 @@ async def populate_database():
 
         # commit changes to the database so we can use the ids
         await session.commit()
-
-        # create default products
-        products = {
-            details['name']: Product(**details) for details in [
-                {
-                    "name": "Apples",
-                    "description": "Fresh apples from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1569870499705-504209102861?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=830&q=80",
-                    "category_id": categories["Fruits"].id,
-                    "quantity": 20,
-                    "price": 0.99,
-                    "weight": 0.5,
-                },
-                {
-                    "name": "Oranges",
-                    "description": "Fresh oranges from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
-                    "category_id": categories["Fruits"].id,
-                    "quantity": 20,
-                    "price": 1.99,
-                    "weight": 0.7,
-                },
-                {
-                    "name": "Peaches",
-                    "description": "Fresh peaches from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1629226182720-f0a169fc9a8e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
-                    "category_id": categories["Fruits"].id,
-                    "quantity": 20,
-                    "price": 1.99,
-                    "weight": 0.8,
-                },
-                {
-                    "name": "Strawberries",
-                    "description": "Fresh strawberries from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1543158181-e6f9f6712055?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
-                    "category_id": categories["Fruits"].id,
-                    "quantity": 20,
-                    "price": 3.99,
-                    "weight": 0.2,
-                },
-                {
-                    "name": "Apricots",
-                    "description": "Fresh apricots from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1592681814168-6df0fa93161b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
-                    "category_id": categories["Fruits"].id,
-                    "quantity": 20,
-                    "price": 4.99,
-                    "weight": 0.3,
-                },
-                {
-                    "name": "Bananas",
-                    "description": "Fresh bananas from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1603833665858-e61d17a86224?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=654&q=80",
-                    "category_id": categories["Fruits"].id,
-                    "quantity": 20,
-                    "price": 1.99,
-                    "weight": 0.4,
-                },
-                {
-                    "name": "Black Berries",
-                    "description": "Fresh black berries from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1562845029-d1b530d4cfd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
-                    "category_id": categories["Fruits"].id,
-                    "quantity": 20,
-                    "price": 5.99,
-                    "weight": 0.6,
-                },
-                {
-                    "name": "Raspberries",
-                    "description": "Fresh raspberries from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1577069861033-55d04cec4ef5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=928&q=80",
-                    "category_id": categories["Fruits"].id,
-                    "quantity": 20,
-                    "price": 5.99,
-                    "weight": 0.6,
-                },
-              {
-                    "name": "Vegetables",
-                    "description": "Fresh vegetables from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1597362925123-77861d3fbac7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
-                },
-                {
-                    "name": "Fruits",
-                    "description": "Fresh fruits from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
-                },
-                {
-                    "name": "Meats",
-                    "description": "Fresh meats from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1632154023554-c2975e9be348?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80",
-                },
-                {
-                    "name": "Grains",
-                    "description": "Fresh grains from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1623066798929-946425dbe1b0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
-                },
-                {
-                    "name": "Eggs & Dairy",
-                    "description": "Fresh eggs & dairy from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1617049092088-8771a80edde2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1480&q=80",
-                },
-                {
-                    "name": "Nuts & Seeds",
-                    "description": "Fresh nuts & seeds from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1543208541-0961a29a8c3d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
-                },
-                {
-                    "name": "Spices & Herbs",
-                    "description": "Fresh spices and herbs from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
-                },
-                {
-                    "name": "Supplements",
-                    "description": "Fresh supplements from local farms",
-                    "image_url": "https://images.unsplash.com/photo-1627467959547-8e44da7aa00a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1374&q=80"
-                },
-            ]
-        }
-        session.add_all(categories.values())
-
-        # commit changes to the database so we can use the ids
-        await session.commit()
+        # await session.refresh_all(categories.values())
 
         # create default products
         products = {
@@ -834,26 +717,54 @@ async def populate_database():
                     "quantity": 20,
                     "price": 10.97,
                     "weight": 1.00,
-                }
-                
-                
-                
-
-
-
-
-                
-                
-
-                
+                },
             ]}
         session.add_all(products.values())
-
+        
         await session.commit()
+        # await session.refresh_all(products.values())
+
+        past_orders = [
+            Order(
+                user_id=users["customer"].id,
+                status=OrderStatus.CART,
+                items=[
+                    OrderItem(
+                        product_id=products["Apples"].id,
+                        quantity=1,
+                    )
+                ],
+                amount_total = round(5.99 + (products["Apples"].price * 1.098), 2),
+                amount_subtotal = products["Apples"].price,
+                amount_shipping = 5.99,
+                amount_tax = round(products["Apples"].price * 0.098, 2),
+                address="123 Main St, San Jose",
+            ),
+            Order(
+                user_id=users["employee"].id,
+                status=OrderStatus.CART,
+                items=[
+                    OrderItem(
+                        product_id=products["Apples"].id,
+                        quantity=1,
+                    )
+                ],
+                amount_total = round(5.99 + (products["Apples"].price * 1.098), 2),
+                amount_subtotal = products["Apples"].price,
+                amount_shipping = 5.99,
+                amount_tax = round(products["Apples"].price * 0.098, 2),
+                address="321 Main St, San Jose",
+            )
+        ]
+
+        session.add_all(past_orders)
+        await session.commit()
+        
+        
 
 
 @db_app.command()
 @coro
 async def populate():
     """Populate the database with default data"""
-    await populate_database()
+    await populate_database(async_session_factory)

@@ -8,7 +8,7 @@ class Sentinel:
     def __init__(self, name=''):
         self.name = f"Sentinel({name})"
 
-    def __repr__(self):
+    def __repr__(self): # pragma: no cover
         return self.name
 
 
@@ -32,14 +32,14 @@ def getenv(key: str, default: Any = NotSet) -> Any:
     if key in os.environ:
         return os.environ[key]
 
-    if default is NotSet:
+    if default is NotSet: # pragma: no cover
         raise EnvironmentError(
             f'The envrironment variable "{key}" was not found and no default was set.')
     return default
 
 
 ENVIRONMENT = getenv('ENVIRONMENT')
-if ENVIRONMENT not in ['development', 'staging', 'production']:
+if ENVIRONMENT not in ['development', 'staging', 'production']: # pragma: no cover
     raise EnvironmentError(
         f'Invalid environment "{ENVIRONMENT}" found in the environment variable "ENVIRONMENT".')
 

@@ -1,3 +1,4 @@
+import stripe
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -51,8 +52,21 @@ async def register_new_user(
     new_user_details: schemas.user.NewUserIn,
     db: AsyncSession = Depends(get_database)
 ):
+    existing_user = await security.get_user_by_email(db, email=new_user_details.username)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User already exists",
+        )
+    
+    stripe_customer = stripe.Customer.create(
+        name=f"{new_user_details.firstname} {new_user_details.lastname}",
+        email=new_user_details.username
+    )
+
     new_user = models.User( 
         email=new_user_details.username,
+        stripe_id=stripe_customer.id,
         firstname=new_user_details.firstname,
         lastname=new_user_details.lastname,
         password=pwd_context.hash(new_user_details.password)
@@ -60,7 +74,7 @@ async def register_new_user(
 
     db.add(new_user)
     await db.commit()
-    db.refresh(new_user)
+    await db.refresh(new_user)
 
     access_token = create_access_token(new_user)
 

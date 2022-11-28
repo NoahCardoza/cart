@@ -31,9 +31,9 @@ async def stripe_webhook(
             STRIPE_SIGNING_KEY
         )
     except (stripe.error.SignatureVerificationError, KeyError) as e:
-        if ENVIRONMENT == "production":
+        if ENVIRONMENT == "production": # pragma: no cover
             raise HTTPException(status_code=400, detail=f"Bad signature.")
-        else:
+        else: # pragma: no cover
             event = json.loads(request_body)
 
     if event['type'] == 'checkout.session.completed':
