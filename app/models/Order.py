@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -25,6 +25,15 @@ class Order(Base):
     stripe_id = Column(String, default="")
     updated_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    amount_total = Column(Float)
+    amount_subtotal = Column(Float)
+    amount_shipping = Column(Float)
+    amount_tax = Column(Float)
+
+    latitude = Column(Float)
+    longitude = Column(Float)
+    address = Column(String)
 
     delivery = relationship("Delivery", uselist=False, back_populates="order")
     items = relationship("OrderItem", lazy="joined")
