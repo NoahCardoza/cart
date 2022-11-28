@@ -169,7 +169,7 @@ async def checkout_cart(
 
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
-        success_url=f"{BASE_URL_UI}/orders/{cart.id}",
+        success_url=f"{BASE_URL_UI}/orders/{cart.id}?stripe=success",
         cancel_url=f"{BASE_URL_UI}/shop?expand=cart",
         customer=user.stripe_id,
         metadata={
