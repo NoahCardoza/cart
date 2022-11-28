@@ -1,0 +1,31 @@
+@app.route('/getorder')
+@login_required
+def Get_Order():
+    if Current_User.is_authenticated:
+        Customer_ID = Current_User.ID
+        Invoice = secrets.token_hex(5)
+        try:
+            Order = CustomerOrder(Invoice = Invoice, Customer_ID = Customer_ID, Orders = Session['ShoppingCart'])
+            db.session.add(order)
+            db.session.commit()
+            session.pop('ShoppingCart')
+            flash('Your order has been registered')
+            return redirect(url_for('home'))
+            except Exception as e:
+            print(e)
+            flash('There is a problem with your order')
+            return redirect(url_for('getCart'))
+            @app.route('/orders/<invoice>')
+            @login_required
+            def orders(invoice):
+                if Current_User.is_authenticated:
+                    OrderTotal = 0
+                    SubTotal = 0
+                    Customer_ID = Current_User.ID
+                    Customer = Register.Query.filter_by(ID = Customer_ID).first()
+                    Orders = CustomerOrder.Query.filter_by(Customer_ID = Customer_ID).first()
+                    for _Key, Product in Orders.Orders.items():
+                        SubTotal += float(Product['price']) * int(Product['quantity'])
+                    else:
+                        return Redirect(url_for('customerLogin'))
+                        return render_template('customer/order.html', invoice = invoice, SubTotal = SubTotal)
