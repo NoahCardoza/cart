@@ -1,0 +1,29 @@
+from fastapi import FastAPI
+from typing import Optional
+from uuid import UUID, uuid4
+from pydantic import BaseModel
+from tkinter import *
+
+def click():
+    CategoryName = input('What is the name of the category that you want to add?\n')
+
+Vegetables()
+{
+    "id": 1,
+    "name": "Vegetables",
+    "description": "Spinach", "Carrots", "Green Cabbage", "Purple Cabbage";
+}
+
+Fruits()
+{
+    "id": 1,
+    "name": "Fruits",
+    "description": "Apple", "Orange", "Strawberry", "Banana";
+}
+
+Meats()
+{
+    "id": 1,
+    "name": "Meats",
+    "description": "Beef", "Chicken", "Turkey",;
+}
