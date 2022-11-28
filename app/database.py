@@ -36,7 +36,7 @@ async_session_factory: Callable[[], AsyncSession] = sessionmaker(
 Base = declarative_base()
 
 
-async def get_database() -> AsyncGenerator:
+async def get_database() -> AsyncGenerator: 
     """Get a database session.
 
     Automatically rolls back the session if an exception is raised.
@@ -51,7 +51,7 @@ async def get_database() -> AsyncGenerator:
     Yields:
         Iterator[AsyncGenerator]: A session to the database.
     """
-    async with async_session_factory() as session:
+    async with async_session_factory() as session: # pragma: no cover
         try:
             yield session
             await session.commit()

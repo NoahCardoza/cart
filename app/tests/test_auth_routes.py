@@ -27,6 +27,7 @@ async def test_valid_username_with_invalid_password(client: AsyncClient):
     })
 
     assert response.status_code == 401
+    assert response.json()['detail'] == 'Incorrect username or password'
 
 
 async def test_valid_superuser_login(client: AsyncClient):
