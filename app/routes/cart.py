@@ -1,4 +1,5 @@
 import functools
+from datetime import datetime
 
 import stripe
 from fastapi import APIRouter, Depends, Request
@@ -40,6 +41,7 @@ async def get_cart(cart: models.Order = Depends(get_user_current_order)):
     """Get the current users cart items."""
     return cart
 
+
 @cart_router.post("/", response_model=schemas.order.OrderItemOut)
 async def add_to_cart(
         item: schemas.product.ProductCartItemIn,
@@ -63,10 +65,12 @@ async def add_to_cart(
     else:
         order_item.quantity += item.quantity
     
+    cart.updated_at = datetime.utcnow()        
     await db.commit()
     await db.refresh(cart)
 
     return order_item
+
 
 @cart_router.patch("/{item_id}", response_model=schemas.order.OrderItemOut)
 async def update_cart_item(
@@ -91,6 +95,7 @@ async def update_cart_item(
     if (order_item.product.quantity < 0):
         raise HTTPException(status_code=400, detail="Not enough stock")
     
+    cart.updated_at = datetime.utcnow()
     await db.commit()
     await db.refresh(order_item)
 
@@ -113,6 +118,7 @@ async def delete_cart_item(
         raise HTTPException(status_code=404, detail="Cart item was not found")
 
     order_item.product.quantity += order_item.quantity
+    cart.updated_at = datetime.utcnow()
     
     await db.delete(order_item)
     await db.commit()
@@ -130,11 +136,11 @@ async def get_user_past_order(db: AsyncSession = Depends(get_database), user: sc
 
     return cart
 
+
 @cart_router.post("/checkout/")
 async def checkout_cart(
         user: schemas.user.UserContext = Depends(security.get_current_user),
         cart: models.Order = Depends(get_user_current_order),
-        db: AsyncSession = Depends(get_database)
     ):
     """Checkout the current users cart."""
 
@@ -162,7 +168,8 @@ async def checkout_cart(
         )
 
     checkout_session = stripe.checkout.Session.create(
-        success_url=f"{BASE_URL_UI}/orders/{cart.id}",
+        payment_method_types=['card'],
+        success_url=f"{BASE_URL_UI}/orders/{cart.id}?stripe=success",
         cancel_url=f"{BASE_URL_UI}/shop?expand=cart",
         customer=user.stripe_id,
         metadata={
@@ -172,6 +179,7 @@ async def checkout_cart(
             {
                 "price_data": {
                     "currency": "usd",
+                    "tax_behavior": "exclusive",
                     "unit_amount": int(item.product.price * 100),
                     "product_data": {
                         "name": item.product.name,
@@ -182,6 +190,12 @@ async def checkout_cart(
                 "quantity": item.quantity,
             } for item in cart.items
         ],
+        customer_update={
+            'shipping': 'auto',
+        },
+        automatic_tax={
+            'enabled': True,
+        },
         shipping_address_collection={
             "allowed_countries": ["US"],
         },

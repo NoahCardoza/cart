@@ -1,14 +1,16 @@
 import json
+from datetime import datetime
 
+import requests
 import stripe
 from fastapi import APIRouter, Depends, Request
 from fastapi.exceptions import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import models, schemas, security
+from app import models
 from app.database import get_database
-from app.environ import ENVIRONMENT, STRIPE_SIGNING_KEY
+from app.environ import ENVIRONMENT, POSITIONSTACK_API_KEY, STRIPE_SIGNING_KEY
 
 webhook_router = APIRouter()
 
@@ -34,8 +36,6 @@ async def stripe_webhook(
         else:
             event = json.loads(request_body)
 
-    print(json.dumps(event))
-
     if event['type'] == 'checkout.session.completed':
         checkout_session = event['data']['object']
         order_id = int(checkout_session['metadata']['order_id'])
@@ -46,4 +46,24 @@ async def stripe_webhook(
         order.stripe_id = checkout_session['payment_intent']
         order.status = models.OrderStatus.ORDERED
 
-    
+        order.amount_total = round(checkout_session['amount_total'] / 100, 2)
+        order.amount_subtotal = round(checkout_session['amount_subtotal'] / 100, 2)
+        order.amount_tax = round(checkout_session['total_details']['amount_tax'] / 100, 2)
+        order.amount_shipping = round(checkout_session['total_details']['amount_shipping'] / 100, 2)
+        
+        address = checkout_session['shipping_details']['address']
+        short_address = address['line1'] + (" " + address['line2'] if address['line2'] else '') + ', ' + address['city']
+        long_address = short_address + ', ' + address['state'] + ', ' + address['postal_code'] + ', ' + address['country']
+
+        res = requests.get('http://api.positionstack.com/v1/forward', params={
+                'access_key': POSITIONSTACK_API_KEY,
+                'query': long_address,
+                'limit': 1,
+        }).json()
+
+        if len(res['data']) > 0:
+            order.latitude = res['data'][0]['latitude']
+            order.longitude = res['data'][0]['longitude']
+
+        order.address = short_address
+        order.updated_at = datetime.utcnow()

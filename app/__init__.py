@@ -6,6 +6,7 @@ from app.environ import STRIPE_PRIVATE_KEY
 from app.routes.authentication import auth_router
 from app.routes.cart import cart_router
 from app.routes.category import category_router
+from app.routes.order import order_router
 from app.routes.product import product_router
 from app.routes.search import search_router
 from app.routes.user import user_router
@@ -16,6 +17,7 @@ stripe.api_key = STRIPE_PRIVATE_KEY
 
 app = FastAPI()
 
+app.include_router(order_router, prefix="/order", tags=["order"])
 app.include_router(webhook_router, prefix="/webhook", tags=["webhook"])
 app.include_router(cart_router, prefix="/cart", tags=["cart"])
 app.include_router(auth_router, prefix="/auth", tags=["authentication"])

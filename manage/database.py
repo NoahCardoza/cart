@@ -41,7 +41,7 @@ def upsert_stripe_contact(email: str, name: str):
         customers = stripe.Customer.search(
             query=f"email:'{email}'"
         )['data']
-        print(customers)
+
         if len(customers) == 0:
             return stripe.Customer.create(
                 name=name,
