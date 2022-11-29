@@ -1,16 +1,17 @@
-from app import environ
 from fastapi.middleware.cors import CORSMiddleware
+
+from app import environ
 
 allow_origins = []
 allow_origin_regex = None
 
-if environ.PRODUCTION:
+if environ.PRODUCTION: # pragma: no cover
     # only allow requests from the production frontend
     allow_origins.append("https://www.producegoose.farm")
-elif environ.DEVELOPMENT:
+elif environ.DEVELOPMENT: # pragma: no cover
     # allow all origins in development
     allow_origins = ["*"]
-elif environ.STAGING:
+elif environ.STAGING: # pragma: no cover
     # allow local frontend development to access staging backend
     allow_origins.append("http://localhost:3000")
     allow_origins.append("http://127.0.0.1:3000")

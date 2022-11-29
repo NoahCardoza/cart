@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 from app.models.Order import OrderStatus
 from app.schemas.product import ProductOut
-from pydantic import BaseModel, Field
 
 
 class OrderItemOut(BaseModel):
@@ -24,3 +25,13 @@ class OrderCartOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+        
+class OrderOut(OrderCartOut):
+    amount_total: float = Field(..., description="The total amount of the order.", example=42.0)
+    amount_subtotal: float = Field(..., description="The subtotal amount of the order.", example=42.0)
+    amount_shipping: float = Field(..., description="The shipping amount of the order.", example=42.0)
+    amount_tax: float = Field(..., description="The tax amount of the order.", example=42.0)
+    latitude: Optional[float] = Field(..., description="The latitude of the shipping address.", example=38.897675)
+    longitude: Optional[float] = Field(..., description="The longitude of the shipping address.", example=-77.036547)
+    address: str = Field(..., description="The shipping address of the order.", example="238 Blueberry Lane, San Jose")

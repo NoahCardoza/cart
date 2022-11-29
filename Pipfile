@@ -13,9 +13,17 @@ passlib = "*"
 python-jose = "*"
 bcrypt = "*"
 greenlet = "*"
+email-validator = "*"
+stripe = "*"
+sqlakeyset = "*"
+requests = "*"
+pytest-asyncio = "*"
+httpx = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.10"
 
 [dev-packages]
 typer = {extras = ["all"], version = "*"}
+pytest = "*"

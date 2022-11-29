@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
+from traceback import print_exc
 from typing import Union
 
-from fastapi import Cookie, Depends, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -40,23 +41,26 @@ async def get_user_by_email(db: AsyncSession, email: str) -> models.User:
     return res.scalars().first()
 
 
-async def get_current_user(session: str = Cookie(...)) -> schemas.user.UserContext:
+async def get_current_user(response: Response, session: str = Cookie(...)) -> schemas.user.UserContext:
     try:
         payload = jwt.decode(session, environ.JWT_SECRET,
                              algorithms=[JWT_ALGORITHM])
-        payload.pop("exp")
         return schemas.user.UserContext(**payload)
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials"
         )
-    except ValidationError:
+    except ValidationError as e:
+        print_exc(e)
+        response.delete_cookie("session")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Credentials invalid"
+            detail="Credentials invalid",
+            headers={"set-cookie": response.headers['set-cookie']}
         )
-    except Exception:
+    except Exception as e:
+        print_exc(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Fatal error while validating credentials",
