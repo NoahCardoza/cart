@@ -13,6 +13,15 @@ from app.security import get_current_employee
 
 product_router = APIRouter()
 
+@product_router.get("/export", response_model=List[schemas.product.ProductOut])
+async def get_product_by_slug(
+    db: AsyncSession = Depends(get_database)
+):
+    """Get a all products."""
+    
+    return (await db.execute(select(models.Product))).scalars().all()
+
+
 @product_router.patch("/{product_id}")
 async def update_product(
     product_id: int,
@@ -56,5 +65,3 @@ async def get_product_by_slug(
         raise HTTPException(status_code=404, detail="Product not found")
 
     return product
-
-
