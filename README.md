@@ -63,7 +63,7 @@ After the database is running, you need to create all the required tables. To do
 
 1. Make sure you have a Stripe account. If you don't, you can create one [here](https://dashboard.stripe.com/register).
 2. Go to the [Stripe dashboard](https://dashboard.stripe.com/test/dashboard) and click on `Developers` -> `API keys`.
-3. Copy the `Publishable key` and `Secret key` and paste them in the `.env` file.
+3. Copy the `Secret key` and paste them in the `.env` file.
 4. If you are running locally install [Stripe CLI](https://stripe.com/docs/stripe-cli) and run `stripe listen --forward-to localhost:8080/api/webhook/stripe/`.
     1. Otherwise: Go to the [Stripe dashboard](https://dashboard.stripe.com/test/dashboard) and click on `Developers` -> `Webhooks`.
     2. Click on `Add endpoint`.
