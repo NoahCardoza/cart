@@ -1,4 +1,5 @@
 import stripe
+import logging
 from fastapi import FastAPI
 
 from app.bootstrap import cors, exceptions
@@ -11,7 +12,7 @@ from app.routes.product import product_router
 from app.routes.search import search_router
 from app.routes.user import user_router
 from app.routes.webhook import webhook_router
-from app.stripe_config import load_shipping_rates
+from app.stripe_config import load_shipping_rates, StripeShippingRateError
 
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -29,4 +30,13 @@ app.include_router(product_router, prefix="/product", tags=["product"] )
 cors.setup_cors(app)
 exceptions.setup_exception_handlers(app)
 
-app.on_event("startup")(load_shipping_rates)
+@app.on_event("startup")
+def on_startup():
+    try:
+        load_shipping_rates()
+    except StripeShippingRateError:
+        logger = logging.getLogger("uvicorn.error")
+        logger.warning("Not all shipping options are available. Make sure"
+            + "to follow the README and restart the container after running"
+            + "`docker compose exec backend python manage stripe setup` to setup"
+            + "the shipping options in Stripe.")
