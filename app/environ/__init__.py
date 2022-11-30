@@ -49,7 +49,7 @@ DEVELOPMENT = ENVIRONMENT == 'development'
 
 COOKIE_DOMAIN = None 
 
-if PRODUCTION and COOKIE_DOMAIN is NotSet: # pragma: no cover
+if PRODUCTION: # pragma: no cover
     COOKIE_DOMAIN = getenv('COOKIE_DOMAIN')
 
 DATABASE_URL = getenv('DATABASE_URL')
