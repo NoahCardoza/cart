@@ -32,12 +32,13 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 def set_access_token_cookie(response: Response, access_token: str):
-    expires = datetime.utcnow() + timedelta(seconds=environ.JWT_EXPIRE_TIMEOUT_MINUTES)
+    expires = datetime.utcnow() + timedelta(minutes=environ.JWT_EXPIRE_TIMEOUT_MINUTES)
     
     cookie = {
         'key': 'session',
         'value': access_token,
         'expires': expires.strftime(COOKIE_EXPIRE_FORMAT),
+        'httponly': True
     }
 
     if PRODUCTION:
