@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from traceback import print_exc
 
 from app import environ, models, schemas
-from app.environ import COOKIE_DOMAIN, ENVIRONMENT
+from app.environ import COOKIE_DOMAIN, PRODUCTION
 from fastapi import Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -40,12 +40,12 @@ def set_access_token_cookie(response: Response, access_token: str):
         'expires': expires.strftime(COOKIE_EXPIRE_FORMAT),
     }
 
-    if ENVIRONMENT == "production":
+    if PRODUCTION:
         cookie['domain'] = COOKIE_DOMAIN
         cookie['secure'] = True
         cookie['samesite'] = 'none'
 
-    response.set_cookie(key="session", value=access_token, expires=expires.strftime("%a, %d %b %Y %H:%M:%S GMT"),)
+    response.set_cookie(**cookie)
 
 
 async def get_user_by_email(db: AsyncSession, email: str) -> models.User:
