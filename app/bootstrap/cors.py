@@ -1,6 +1,5 @@
-from fastapi.middleware.cors import CORSMiddleware
-
 from app import environ
+from fastapi.middleware.cors import CORSMiddleware
 
 allow_origins = []
 allow_origin_regex = None
@@ -31,4 +30,5 @@ def setup_cors(app):
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["*"],
     )

@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from traceback import print_exc
-from typing import Union
 
+from app import environ, models, schemas
+from app.environ import COOKIE_DOMAIN, PRODUCTION
 from fastapi import Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -10,9 +11,8 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import environ, models, schemas
-
 JWT_ALGORITHM = "HS256"
+COOKIE_EXPIRE_FORMAT = "%a, %d %b %Y %H:%M:%S GMT"
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -21,18 +21,32 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+def create_access_token(data: dict):
     to_encode = data.copy()
 
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=environ.JWT_EXPIRE_TIMEPUT_MINUTES)
+    expire = datetime.utcnow() + timedelta(minutes=environ.JWT_EXPIRE_TIMEOUT_MINUTES)
 
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode, environ.JWT_SECRET, algorithm=JWT_ALGORITHM)
     return encoded_jwt
+
+def set_access_token_cookie(response: Response, access_token: str):
+    expires = datetime.utcnow() + timedelta(minutes=environ.JWT_EXPIRE_TIMEOUT_MINUTES)
+    
+    cookie = {
+        'key': 'session',
+        'value': access_token,
+        'expires': expires.strftime(COOKIE_EXPIRE_FORMAT),
+        'httponly': True
+    }
+
+    if PRODUCTION:
+        cookie['domain'] = COOKIE_DOMAIN
+        cookie['secure'] = True
+        cookie['samesite'] = 'none'
+
+    response.set_cookie(**cookie)
 
 
 async def get_user_by_email(db: AsyncSession, email: str) -> models.User:

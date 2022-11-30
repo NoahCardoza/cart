@@ -38,7 +38,7 @@ async def get_access_token(
 
     access_token = create_access_token(user)
 
-    response.set_cookie(key="session", value=access_token)
+    security.set_access_token_cookie(response, access_token)
 
     return {
         "access_token": access_token,
@@ -78,7 +78,7 @@ async def register_new_user(
 
     access_token = create_access_token(new_user)
 
-    response.set_cookie(key="session", value=access_token)
+    security.set_access_token_cookie(response, access_token)
 
     return {
         "access_token": access_token,
