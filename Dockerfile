@@ -39,4 +39,4 @@ EXPOSE 8000
 
 # Run the application
 ENTRYPOINT ["uvicorn", "--host", "0.0.0.0", "app:app"]
-CMD ["--root-path", "http://localhost:8080/api"]
+CMD ["--root-path", "/api"]

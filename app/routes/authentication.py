@@ -1,11 +1,10 @@
 import stripe
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app import models, schemas, security
 from app.database import get_database
 from app.security import pwd_context
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.ext.asyncio import AsyncSession
 
 auth_router = APIRouter()
 
@@ -20,6 +19,7 @@ def create_access_token(user: models.User) -> str:
         "is_superuser": user.is_superuser,
         "is_employee": user.is_employee
     })
+
 
 @auth_router.post("/token/", response_model=schemas.authentication.Token)
 async def get_access_token(
@@ -45,8 +45,8 @@ async def get_access_token(
         "token_type": "bearer"
     }
 
-   
-@auth_router.post("/register", response_model=schemas.authentication.Token)
+
+@auth_router.post("/register/", response_model=schemas.authentication.Token)
 async def register_new_user(
     response: Response,
     new_user_details: schemas.user.NewUserIn,
@@ -58,13 +58,13 @@ async def register_new_user(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already exists",
         )
-    
+
     stripe_customer = stripe.Customer.create(
         name=f"{new_user_details.firstname} {new_user_details.lastname}",
         email=new_user_details.username
     )
 
-    new_user = models.User( 
+    new_user = models.User(
         email=new_user_details.username,
         stripe_id=stripe_customer.id,
         firstname=new_user_details.firstname,
