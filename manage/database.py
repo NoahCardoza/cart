@@ -8,7 +8,8 @@ from app.security import pwd_context
 from manage.utils import coro
 
 db_app = Typer(
-    help="A collection of commands to help with database management.")
+    help="A collection of commands to help with database management. Use $DATABASE_URL to specify a the database URL."
+)
 
 
 @db_app.command()

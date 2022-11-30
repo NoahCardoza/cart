@@ -1,5 +1,7 @@
+from typing import Optional
+
 import stripe
-from typer import Typer
+from typer import Option, Typer
 
 from app.stripe_config import StripeShippingRateError, load_shipping_rates
 
@@ -76,8 +78,16 @@ delivery_options = [
 ]
 
 @stripe_app.command()
-def setup():
+def setup(
+    api_key: Optional[str] = Option(
+        ..., 
+        help="Use to configure on another Stripe Account, in production for example."
+    ),
+):
     """Create all necessary Stripe objects."""
+
+    if api_key is not None:
+        stripe.api_key = api_key
 
     try:
         load_shipping_rates()
