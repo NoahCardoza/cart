@@ -140,7 +140,7 @@ async def checkout_cart(
     )
 
     # provide free shipping option for orders over 20 pounds
-    if total_weight >= 20:
+    if total_weight <= 20:
         shipping_options = (
             { 'shipping_rate': shipping_rates['complimentary'] },
             *shipping_options
