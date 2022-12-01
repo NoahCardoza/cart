@@ -21,6 +21,12 @@ def create_access_token(user: models.User) -> str:
     })
 
 
+@auth_router.post("/logout/")
+async def get_access_token(response: Response):
+    security.unset_session_cookie(response)
+    response.status_code = status.HTTP_204_NO_CONTENT
+
+
 @auth_router.post("/token/", response_model=schemas.authentication.Token)
 async def get_access_token(
     response: Response,
