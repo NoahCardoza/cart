@@ -31,13 +31,12 @@ def create_access_token(data: dict):
         to_encode, environ.JWT_SECRET, algorithm=JWT_ALGORITHM)
     return encoded_jwt
 
-def set_access_token_cookie(response: Response, access_token: str):
-    expires = datetime.utcnow() + timedelta(minutes=environ.JWT_EXPIRE_TIMEOUT_MINUTES)
-    
+
+def create_session_cookie(value, expires):
     cookie = {
         'key': 'session',
-        'value': access_token,
-        'expires': expires.strftime(COOKIE_EXPIRE_FORMAT),
+        'value': value,
+        'expires': expires,
         'httponly': True
     }
 
@@ -45,8 +44,18 @@ def set_access_token_cookie(response: Response, access_token: str):
         cookie['domain'] = COOKIE_DOMAIN
         cookie['secure'] = True
         cookie['samesite'] = 'none'
+    
+    return cookie
 
-    response.set_cookie(**cookie)
+
+def unset_session_cookie(response: Response):
+    response.set_cookie(**create_session_cookie('', 'Thu, 01 Jan 1970 00:00:00 GMT'))
+
+
+def set_access_token_cookie(response: Response, access_token: str):
+    expires = datetime.utcnow() + timedelta(minutes=environ.JWT_EXPIRE_TIMEOUT_MINUTES)
+
+    response.set_cookie(**create_session_cookie(access_token, expires.strftime(COOKIE_EXPIRE_FORMAT)))
 
 
 async def get_user_by_email(db: AsyncSession, email: str) -> models.User:
