@@ -52,7 +52,7 @@ delivery_options = [
         "type": "fixed_amount"
     },
     {
-        "display_name": "+20 lbs Complimentary",
+        "display_name": "Complimentary",
         "delivery_estimate": {
         "maximum": {
             "unit": "hour",
