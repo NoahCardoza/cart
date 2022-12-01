@@ -2,15 +2,14 @@ import functools
 from datetime import datetime
 
 import stripe
-from fastapi import APIRouter, Depends, Request
-from fastapi.exceptions import HTTPException
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app import models, schemas, security
 from app.database import get_database
 from app.environ import BASE_URL_UI
 from app.stripe_config import shipping_rates
+from fastapi import APIRouter, Depends, Request
+from fastapi.exceptions import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 cart_router = APIRouter()
 
@@ -150,7 +149,7 @@ async def checkout_cart(
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         success_url=f"{BASE_URL_UI}/orders/{cart.id}?stripe=success",
-        cancel_url=f"{BASE_URL_UI}/shop?expand=cart",
+        cancel_url=f"{BASE_URL_UI}/shop?expand=cart&stripe=canceled",
         customer=user.stripe_id,
         metadata={
             "order_id": cart.id
