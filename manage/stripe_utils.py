@@ -1,14 +1,14 @@
 from typing import Optional
 
 import stripe
+from app.stripe_config import (StripeShippingRateError, load_shipping_rates,
+                               shipping_rates)
 from typer import Option, Typer
-
-from app.stripe_config import StripeShippingRateError, load_shipping_rates
 
 stripe_app = Typer(
     help="A collection of commands to help with Stripe.")
 
-delivery_options = [
+shipping_options = [
     {
         "display_name": "Express",
         "delivery_estimate": {
@@ -77,10 +77,11 @@ delivery_options = [
     }
 ]
 
+
 @stripe_app.command()
 def setup(
     api_key: Optional[str] = Option(
-        ..., 
+        None, 
         help="Use to configure on another Stripe Account, in production for example."
     ),
 ):
@@ -93,6 +94,9 @@ def setup(
         load_shipping_rates()
         print('Shipping options already loaded.')
     except StripeShippingRateError:
-        for option in delivery_options:
-            stripe.ShippingRate.create(**option)
+        for shipping_option in shipping_options:
+            shipping_type = shipping_option['metadata']['type']
+            if shipping_rates[shipping_type] is None:
+                shipping_rates[shipping_type] = stripe.ShippingRate.create(**shipping_option)
+                print(f"Created shipping option: {shipping_type}")              
         print('Shipping options loaded.')
