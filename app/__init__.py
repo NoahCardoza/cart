@@ -49,7 +49,7 @@ exceptions.setup_exception_handlers(app)
 
 
 @app.on_event("startup")
-def on_startup():
+def on_startup(): # pragma: no cover
     try:
         load_shipping_rates()
     except StripeShippingRateError:

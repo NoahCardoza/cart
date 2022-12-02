@@ -4,7 +4,7 @@ import json
 from httpx import AsyncClient
 
 AUTH_TOKEN_ENDPOINT = "/auth/token/"
-AUTH_REGISTER_ENDPOINT = "/auth/register"
+AUTH_REGISTER_ENDPOINT = "/auth/register/"
 
 
 def decode_auth_token(auth_token: str) -> dict:

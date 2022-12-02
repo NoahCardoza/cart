@@ -11,7 +11,7 @@ shipping_rates = {
     'complimentary': None,
 }
 
-def load_shipping_rates():
+def load_shipping_rates(): # pragma: no cover
     res = stripe.ShippingRate.list(active=True)
 
     for rate in res.auto_paging_iter():
