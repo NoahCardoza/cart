@@ -1,15 +1,14 @@
 from typing import Any, List, Optional
 
+from app import models, schemas
+from app.database import get_database
+from app.dependencies.field_expansion import FieldExpansionQueryParams
+from app.security import get_current_employee
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
-from app import models, schemas
-from app.database import get_database
-from app.dependencies.field_expansion import FieldExpansionQueryParams
-from app.security import get_current_employee
 
 product_router = APIRouter()
 

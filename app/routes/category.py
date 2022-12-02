@@ -1,16 +1,15 @@
 from typing import Any, List, Optional
 
+from app import models, schemas
+from app.database import get_database
+from app.dependencies.field_expansion import FieldExpansionQueryParams
+from app.security import get_current_superuser
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_pagination import Page, add_pagination
 from fastapi_pagination.ext.async_sqlalchemy import paginate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
-from app import models, schemas
-from app.database import get_database
-from app.dependencies.field_expansion import FieldExpansionQueryParams
-from app.security import get_current_superuser
 
 category_router = APIRouter()
 
@@ -20,7 +19,8 @@ async def get_all_categories(
     db: AsyncSession = Depends(get_database)
 ):
     """List all categories."""
-    return await paginate(db, select(models.Category))
+    return await paginate(db, select(models.Category).order_by(models.Category.slug.asc()))
+
 
 @category_router.get("/{slug}", response_model=schemas.category.CategoryOut, response_model_exclude_none=True)
 async def get_category_by_slug(
@@ -44,7 +44,6 @@ async def get_category_by_slug(
         raise HTTPException(status_code=404, detail="Category not found.")
     
     return category
-
 
 
 @category_router.post("/", response_model=schemas.category.CategoryOut)

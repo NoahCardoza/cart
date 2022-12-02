@@ -1,15 +1,14 @@
 from typing import Any, List, Optional
 
+from app import models, schemas
+from app.database import get_database
+from app.dependencies.field_expansion import FieldExpansionQueryParams
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import Page, add_pagination
 from fastapi_pagination.ext.async_sqlalchemy import paginate
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
-from app import models, schemas
-from app.database import get_database
-from app.dependencies.field_expansion import FieldExpansionQueryParams
 
 search_router = APIRouter()
 
@@ -37,7 +36,7 @@ async def search(
             models.Product.name.ilike(f"%{q}%"),
             models.Product.description.ilike(f"%{q}%")
         )
-    )
+    ).order_by(models.Product.slug.asc())
 
     if expansions:
         stmt = stmt.options(*expansions)

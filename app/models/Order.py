@@ -1,10 +1,9 @@
 import enum
 from datetime import datetime
 
+from app.database import Base
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-
-from app.database import Base
 
 from .helpers.enums import IntEnum
 
@@ -36,4 +35,4 @@ class Order(Base):
     address = Column(String)
 
     delivery = relationship("Delivery", uselist=False, back_populates="order")
-    items = relationship("OrderItem", lazy="joined")
+    items = relationship("OrderItem", order_by="asc(OrderItem.id)", lazy="joined")

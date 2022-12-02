@@ -1,7 +1,6 @@
+from app.database import Base
 from sqlalchemy import Column, ForeignKey, Integer, String, event
 from sqlalchemy.orm import relationship
-
-from app.database import Base
 
 from .helpers import slugify_listener
 
@@ -16,8 +15,8 @@ class Category(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
 
-    children = relationship('Category', remote_side='Category.parent_id')
-    products = relationship('Product', back_populates='category')
+    children = relationship('Category', order_by="asc(Category.slug)", remote_side='Category.parent_id')
+    products = relationship('Product', order_by="asc(Product.slug)", back_populates='category')
 
 
 event.listen(Category.name, 'set', slugify_listener, retval=False)
